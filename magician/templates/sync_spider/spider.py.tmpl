@@ -1,0 +1,60 @@
+# -*- coding: utf-8 -*-
+"""
+-------------------------------------------------
+    Author: qinLess
+    File: ${spider_name}.py
+    Time: ${create_time}
+-------------------------------------------------
+    Change Activity: ${create_time}
+-------------------------------------------------
+    Desc:
+"""
+import os
+import sys
+import traceback
+
+s_path = os.path.abspath(__file__).split('/')
+spider_path = '/'.join(s_path[:s_path.index('spiders')])
+sys.path.append(spider_path)
+
+from magical.sync_spider import SyncSpider, Request, run_spider
+
+
+class ${SpiderName}Spider(SyncSpider):
+    name = '${project_name}_${spider_name}'
+    settings_path = '${settings_path}'
+
+    default_custom_setting = {}
+
+    def __init__(self, *args, **kwargs):
+        custom_setting = {}
+        kwargs.update(dict(custom_setting=custom_setting))
+        super().__init__(*args, **kwargs)
+
+    # 爬虫结束前，处理函数
+    def spider_close_handler(self):
+        # 统计当前爬虫采集条数
+        pass
+        # self.spider_init.sum_spider_data_num()
+
+    def start_spider(self):
+        try:
+            self.logger.info(f'Hello {self.name}')
+
+            request = Request(url='http://www.baidu.com/')
+            response = self.download(request)
+
+            title = response.re.findall('<title>(.*?)</title>')
+            self.logger.info(f'title: {title}')
+
+        except Exception as e:
+            self.logger.exception(f'start_spider.error: {e}')
+            self.wechat.send_text(
+                self.spider_error_text,
+                plat_name='plat_name',
+                error_info=traceback.format_exc()
+            )
+
+
+if __name__ == '__main__':
+    run_spider(${SpiderName}Spider)
